@@ -30,6 +30,9 @@
 #include "shortcut_layer.h"
 #include "softmax_layer.h"
 #include "utils.h"
+#ifdef ZYNQ
+#include "math.h"
+#endif
 
 typedef struct{
     char *type;
@@ -1036,6 +1039,13 @@ void load_convolutional_weights(layer l, FILE *fp)
             fill_cpu(l.n, 0, l.rolling_mean, 1);
             fill_cpu(l.n, 0, l.rolling_variance, 1);
         }
+        #ifdef ZYNQ
+        for(int i=0;i<l.n;++i){
+            float s = l.scales[i]/(sqrt(l.rolling_variance[i]) + .000001f);
+            l.alpha[i] = s;
+            l.beta[i] = l.biases[i] - s*l.rolling_mean[i];
+        }
+        #endif
     }
     fread(l.weights, sizeof(float), num, fp);
     if(l.adam){

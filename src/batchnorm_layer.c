@@ -131,7 +131,6 @@ void resize_batchnorm_layer(layer *layer, int w, int h)
 {
     fprintf(stderr, "Not implemented\n");
 }
-
 void forward_batchnorm_layer(layer l, network net)
 {
     if(l.type == BATCHNORM) copy_cpu(l.outputs*l.batch, net.input, 1, l.output, 1);
@@ -140,6 +139,17 @@ void forward_batchnorm_layer(layer l, network net)
         l.out_h = l.out_w = 1;
     }
     copy_cpu(l.outputs*l.batch, l.output, 1, l.x, 1);
+    #ifdef ZYNQ
+    #ifdef DEBUG
+    int s = l.out_w*l.out_h;
+    for(int i=0;i<l.batch;++i)
+        for(int j=0;j<l.out_c;++j)
+            for(int k=0;k<s;++k)
+                l.output_check[i*l.out_c*s+j*s+k]
+                    = (l.output[i*l.out_c*s+j*s+k]
+                    *l.alpha[j])-l.beta[j];
+    #endif
+    #endif
     if(net.train){
         mean_cpu(l.output, l.batch, l.out_c, l.out_h*l.out_w, l.mean);
         variance_cpu(l.output, l.mean, l.batch, l.out_c, l.out_h*l.out_w, l.variance);
@@ -156,6 +166,13 @@ void forward_batchnorm_layer(layer l, network net)
     }
     scale_bias(l.output, l.scales, l.batch, l.out_c, l.out_h*l.out_w);
     add_bias(l.output, l.biases, l.batch, l.out_c, l.out_h*l.out_w);
+    #ifdef ZYNQ
+    #ifdef DEBUG
+    for(int i=0;i<l.batch*l.out_c*s;++i)
+        if(abs(l.output[i]-l.output_check[i])>=1E-6)
+            printf("%f, %f\n", l.output[i], l.output_check[i]);
+    #endif
+    #endif
 }
 
 void backward_batchnorm_layer(layer l, network net)

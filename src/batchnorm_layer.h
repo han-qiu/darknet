@@ -16,4 +16,11 @@ void pull_batchnorm_layer(layer l);
 void push_batchnorm_layer(layer l);
 #endif
 
+#ifdef ZYNQ
+#ifdef DEBUG
+void forward_batchnorm_layer_zynq(layer l, network net);
+#endif 
+#endif
+
+
 #endif

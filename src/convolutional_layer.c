@@ -202,6 +202,13 @@ convolutional_layer make_convolutional_layer(int batch, int h, int w, int c, int
     l.output = calloc(l.batch*l.outputs, sizeof(float));
     l.delta  = calloc(l.batch*l.outputs, sizeof(float));
 
+#ifdef ZYNQ
+    l.alpha = calloc(n, sizeof(float));
+    l.beta = calloc(n, sizeof(float));
+#ifdef DEBUG
+    l.output_check = calloc(l.batch*l.outputs, sizeof(float));
+#endif
+#endif
     l.forward = forward_convolutional_layer;
     l.backward = backward_convolutional_layer;
     l.update = update_convolutional_layer;

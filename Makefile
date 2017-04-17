@@ -1,3 +1,4 @@
+ZYNQ=0
 GPU=0
 CUDNN=0
 OPENCV=0
@@ -28,6 +29,10 @@ OPTS=-O0 -g
 endif
 
 CFLAGS+=$(OPTS)
+
+ifeq ($(ZYNQ), 1)
+COMMON+= -DZYNQ
+endif
 
 ifeq ($(OPENCV), 1) 
 COMMON+= -DOPENCV
