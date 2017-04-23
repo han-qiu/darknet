@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <time.h>
 
+
 #ifdef AI2
 #include "xnor_layer.h"
 #endif
@@ -201,7 +202,6 @@ convolutional_layer make_convolutional_layer(int batch, int h, int w, int c, int
 
     l.output = calloc(l.batch*l.outputs, sizeof(float));
     l.delta  = calloc(l.batch*l.outputs, sizeof(float));
-
     l.forward = forward_convolutional_layer;
     l.backward = backward_convolutional_layer;
     l.update = update_convolutional_layer;
@@ -303,6 +303,18 @@ convolutional_layer make_convolutional_layer(int batch, int h, int w, int c, int
         cudnn_convolutional_setup(&l);
 #endif
     }
+#endif
+#ifdef DATA_TYPE
+    l.forward = forward_convolutional_layer_type;
+    l.backward = backward_convolutional_layer_type;
+    l.update = update_convolutional_layer_type;
+    l.weights_type  = calloc(c*n*size*size, sizeof(float));
+#ifdef GPU
+    l.forward = forward_convolutional_layer_gpu_type;
+    l.backward = backward_convolutional_layer_gpu_type;
+    l.update = update_convolutional_layer_gpu_type;
+    l.weights_gpu_type = cuda_make_array(l.weights_type, c*n*size*size);
+#endif
 #endif
     l.workspace_size = get_workspace_size(l);
     l.activation = activation;
@@ -468,7 +480,16 @@ void forward_convolutional_layer(convolutional_layer l, network net)
     activate_array(l.output, m*n*l.batch, l.activation);
     if(l.binary || l.xnor) swap_binary(&l);
 }
-
+#ifdef DATA_TYPE
+void forward_convolutional_layer_type(convolutional_layer l, network net){
+    trans(l.weights, l.weights_type, l.nweights);
+    trans(net.input, net.input, l.batch*l.inputs);
+    l.last_weights = l.weights;
+    l.weights = l.weights_type;
+    forward_convolutional_layer(l, net);
+    trans(l.output, l.output, l.batch*l.outputs);
+}
+#endif
 void backward_convolutional_layer(convolutional_layer l, network net)
 {
     int i;
@@ -506,6 +527,11 @@ void backward_convolutional_layer(convolutional_layer l, network net)
         }
     }
 }
+#ifdef DATA_TYPE
+void backward_convolutional_layer_type(convolutional_layer l, network net){
+    backward_convolutional_layer(l, net);
+}
+#endif
 
 void update_convolutional_layer(convolutional_layer l, int batch, float learning_rate, float momentum, float decay)
 {
@@ -523,6 +549,12 @@ void update_convolutional_layer(convolutional_layer l, int batch, float learning
     scal_cpu(size, momentum, l.weight_updates, 1);
 }
 
+#ifdef DATA_TYPE 
+void update_convolutional_layer_type(convolutional_layer l, int batch, float learning_rate, float momentum, float decay){
+    l.weights = l.last_weights;
+    update_convolutional_layer(l, batch, learning_rate, momentum, decay);
+}
+#endif
 
 image get_convolutional_weight(convolutional_layer l, int i)
 {

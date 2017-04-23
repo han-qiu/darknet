@@ -30,6 +30,18 @@ void free_layer(layer l)
     if(l.bias_updates)       free(l.bias_updates);
     if(l.scales)             free(l.scales);
     if(l.scale_updates)      free(l.scale_updates);
+    #ifdef DATA_TYPE
+    if(l.last_weights==l.weights) l.last_weights = NULL;
+    if(l.last_weights_gpu == l.weights_gpu) l.last_weights = NULL;
+    if(l.weights_type == l.weights){
+        l.weights = l.last_weights;
+        l.last_weights = NULL;
+    }
+    if(l.weights_gpu_type == l.weights_gpu){
+        l.weights_gpu = l.last_weights_gpu;
+        l.last_weights_gpu = NULL;
+    }
+    #endif
     if(l.weights)            free(l.weights);
     if(l.weight_updates)     free(l.weight_updates);
     if(l.delta)              free(l.delta);
@@ -51,6 +63,10 @@ void free_layer(layer l)
     if(l.r_cpu)              free(l.r_cpu);
     if(l.h_cpu)              free(l.h_cpu);
     if(l.binary_input)       free(l.binary_input);
+
+#ifdef DATA_TYPE
+    if(l.weights_type)       free(l.weights_type);
+#endif
 
 #ifdef GPU
     if(l.indexes_gpu)           cuda_free((float *)l.indexes_gpu);
@@ -92,5 +108,11 @@ void free_layer(layer l)
     if(l.rand_gpu)                cuda_free(l.rand_gpu);
     if(l.squared_gpu)             cuda_free(l.squared_gpu);
     if(l.norms_gpu)               cuda_free(l.norms_gpu);
+#endif
+
+#ifdef DATA_TYPE
+    #ifdef GPU
+    if(l.weights_gpu_type)        cuda_free(l.weights_gpu_type);
+    #endif
 #endif
 }

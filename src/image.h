@@ -8,6 +8,10 @@
 #include <math.h>
 #include "box.h"
 
+#ifdef DATA_TYPE
+#include "data_type.h"
+#endif
+
 #ifndef __cplusplus
 #ifdef OPENCV
 #include "opencv2/highgui/highgui_c.h"
@@ -109,5 +113,8 @@ image get_image_layer(image m, int l);
 
 void free_image(image m);
 void test_resize(char *filename);
+#ifdef DATA_TYPE
+void trans_image(image m);
+#endif
 #endif
 

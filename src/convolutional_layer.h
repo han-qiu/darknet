@@ -7,6 +7,9 @@
 #include "layer.h"
 #include "network.h"
 
+
+#include "data_type.h"
+
 typedef layer convolutional_layer;
 
 #ifdef GPU
@@ -49,6 +52,18 @@ int convolutional_out_height(convolutional_layer layer);
 int convolutional_out_width(convolutional_layer layer);
 void rescale_weights(convolutional_layer l, float scale, float trans);
 void rgbgr_weights(convolutional_layer l);
+
+#ifdef DATA_TYPE
+void forward_convolutional_layer_type(convolutional_layer layer, network net);
+void backward_convolutional_layer_type(convolutional_layer layer, network net);
+void update_convolutional_layer_type(convolutional_layer layer, int batch, float learning_rate, float momentum, float decay);
+#ifdef GPU
+void forward_convolutional_layer_gpu_type(convolutional_layer layer, network net);
+void backward_convolutional_layer_gpu_type(convolutional_layer layer, network net);
+void update_convolutional_layer_gpu_type(convolutional_layer layer, int batch, float learning_rate, float momentum, float decay);
+#endif
+#endif
+
 
 #endif
 

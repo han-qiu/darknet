@@ -30,6 +30,9 @@
 #include "shortcut_layer.h"
 #include "softmax_layer.h"
 #include "utils.h"
+#ifdef DATA_TYPE
+#include "data_type.h"
+#endif
 
 typedef struct{
     char *type;
@@ -1037,7 +1040,8 @@ void load_convolutional_weights(layer l, FILE *fp)
             fill_cpu(l.n, 0, l.rolling_variance, 1);
         }
     }
-    fread(l.weights, sizeof(float), num, fp);
+    // fread(l.weights, sizeof(float), num, fp);
+    myfread(l.weights, sizeof(float), num, fp);
     if(l.adam){
         fread(l.m, sizeof(float), num, fp);
         fread(l.v, sizeof(float), num, fp);

@@ -281,6 +281,14 @@ struct layer{
     cudnnConvolutionBwdFilterAlgo_t bf_algo;
     #endif
     #endif
+    #ifdef DATA_TYPE
+    float *weights_type;
+    float *last_weights;
+    #ifdef GPU
+    float *weights_gpu_type;
+    float *last_weights_gpu;
+    #endif
+    #endif
 };
 
 void free_layer(layer);
