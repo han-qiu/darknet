@@ -12,6 +12,15 @@ extern "C" {
 #include "utils.h"
 #include "cuda.h"
 }
+#ifdef DEBUG
+#include <thrust/extrema.h>
+#include <thrust/device_ptr.h>
+#endif
+typedef struct{
+    float min_;
+    float max_;
+}min_max;
+min_max in={9999,-9999}, w={9999,-9999}, out={9999,-9999};
 
 __global__ void binarize_kernel(float *x, int n, float *binary)
 {
@@ -72,6 +81,27 @@ void binarize_weights_gpu(float *weights, int n, int size, float *binary)
 
 void forward_convolutional_layer_gpu(convolutional_layer l, network net)
 {
+#ifdef DEBUG
+    thrust::device_ptr<float> d_ptr;
+    float min_, max_, length_;
+
+    d_ptr = thrust::device_pointer_cast(n.inputs_gpu);
+    length_ = l.batch*l.inputs;
+    min_ = *(thrust::min_element(d_ptr, d_ptr + length_));
+    in.min_ = in.min_<min_?in.min_:min_;
+    max_ = *(thrust::min_element(d_ptr, d_ptr+length_));
+    in.max_ = in.max_>max_?in.max_:max_;
+    printf("in-- min:%f,max:\n", in.min_, in.max_);
+
+    d_ptr = thrust::device_pointer_cast(l.weights_gpu);
+    length_ = l.nweights;
+    min_ = *(thrust::min_element(d_ptr, d_ptr + length_));
+    w.min_ = w.min_<min_?w.min_:min_;
+    max_ = *(thrust::min_element(d_ptr, d_ptr+length_));
+    w.max_ = w.max_>max_?w.max_:max_;
+    printf("weights-- min:%f,max:\n", w.min_, w.max_);
+#endif
+
     fill_ongpu(l.outputs*l.batch, 0, l.output_gpu, 1);
     if(l.binary){
         binarize_weights_gpu(l.weights_gpu, l.n, l.c*l.size*l.size, l.binary_weights_gpu);
@@ -100,7 +130,6 @@ void forward_convolutional_layer_gpu(convolutional_layer l, network net)
                 &one,
                 l.dstTensorDesc,
                 l.output_gpu);
-
 #else
     int i;
     int m = l.n;
@@ -113,6 +142,15 @@ void forward_convolutional_layer_gpu(convolutional_layer l, network net)
         float * c = l.output_gpu;
         gemm_ongpu(0,0,m,n,k,1.,a,k,b,n,1.,c+i*m*n,n);
     }
+#endif
+#ifdef DEBUG
+    d_ptr = thrust::device_pointer_cast(l.output_gpu);
+    length_ = l.batch*l.outputs;
+    min_ = *(thrust::min_element(d_ptr, d_ptr + length_));
+    out.min_ = out.min_<min_?out.min_:min_;
+    max_ = *(thrust::min_element(d_ptr, d_ptr+length_));
+    out.max_ = out.max_>max_?out.max_:max_;
+    printf("out-- min:%f,max:\n", out.min_, out.max_);
 #endif
 
     if (l.batch_normalize) {
