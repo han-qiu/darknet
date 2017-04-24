@@ -12,10 +12,10 @@ extern "C" {
 #include "utils.h"
 #include "cuda.h"
 }
-#ifdef DEBUG
+//#ifdef DEBUG
 #include <thrust/extrema.h>
 #include <thrust/device_ptr.h>
-#endif
+//#endif
 typedef struct{
     float min_;
     float max_;
@@ -81,17 +81,17 @@ void binarize_weights_gpu(float *weights, int n, int size, float *binary)
 
 void forward_convolutional_layer_gpu(convolutional_layer l, network net)
 {
-#ifdef DEBUG
+//#ifdef DEBUG
     thrust::device_ptr<float> d_ptr;
     float min_, max_, length_;
 
-    d_ptr = thrust::device_pointer_cast(n.inputs_gpu);
+    d_ptr = thrust::device_pointer_cast(net.input_gpu);
     length_ = l.batch*l.inputs;
     min_ = *(thrust::min_element(d_ptr, d_ptr + length_));
     in.min_ = in.min_<min_?in.min_:min_;
     max_ = *(thrust::min_element(d_ptr, d_ptr+length_));
     in.max_ = in.max_>max_?in.max_:max_;
-    printf("in-- min:%f,max:\n", in.min_, in.max_);
+    printf("in-- min:%f,max:%f\n", in.min_, in.max_);
 
     d_ptr = thrust::device_pointer_cast(l.weights_gpu);
     length_ = l.nweights;
@@ -99,8 +99,8 @@ void forward_convolutional_layer_gpu(convolutional_layer l, network net)
     w.min_ = w.min_<min_?w.min_:min_;
     max_ = *(thrust::min_element(d_ptr, d_ptr+length_));
     w.max_ = w.max_>max_?w.max_:max_;
-    printf("weights-- min:%f,max:\n", w.min_, w.max_);
-#endif
+    printf("weights-- min:%f,max:%f\n", w.min_, w.max_);
+//#endif
 
     fill_ongpu(l.outputs*l.batch, 0, l.output_gpu, 1);
     if(l.binary){
@@ -143,15 +143,15 @@ void forward_convolutional_layer_gpu(convolutional_layer l, network net)
         gemm_ongpu(0,0,m,n,k,1.,a,k,b,n,1.,c+i*m*n,n);
     }
 #endif
-#ifdef DEBUG
+//#ifdef DEBUG
     d_ptr = thrust::device_pointer_cast(l.output_gpu);
     length_ = l.batch*l.outputs;
     min_ = *(thrust::min_element(d_ptr, d_ptr + length_));
     out.min_ = out.min_<min_?out.min_:min_;
     max_ = *(thrust::min_element(d_ptr, d_ptr+length_));
     out.max_ = out.max_>max_?out.max_:max_;
-    printf("out-- min:%f,max:\n", out.min_, out.max_);
-#endif
+    printf("out-- min:%f,max:%f\n", out.min_, out.max_);
+//#endif
 
     if (l.batch_normalize) {
         forward_batchnorm_layer_gpu(l, net);
