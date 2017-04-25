@@ -1,5 +1,5 @@
-GPU=1
-CUDNN=1
+GPU=0
+CUDNN=0
 OPENCV=1
 DEBUG=0
 DATA_TYPE=0
@@ -30,6 +30,7 @@ endif
 
 CFLAGS+=$(OPTS)
 
+COMMON+= -I/home/hqiu/include
 ifeq ($(DATA_TYPE),0)
 COMMON+= -DDATA_TYPE=0
 endif
