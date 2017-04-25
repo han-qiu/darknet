@@ -489,14 +489,22 @@ void forward_convolutional_layer_type(convolutional_layer l, network net){
     forward_convolutional_layer(l, net);
     trans_o(l.output, l.output, l.batch*l.outputs);
 }
+
+#ifdef GPU
+void trans_gpu(float *in_gpu, float *out_gpu, float *x, int n,  void (*trans)( float *in, float *out, int n)){
+    cuda_push_array(x_gpu, x, n);
+    trans(x,x,n);
+    cuda_pull_array(x_gpu, x, n);
+}
 void forward_convolutional_layer_gpu_type(convolutional_layer l, network net){
-    trans_w(l.weights_gpu, l.weights_gpu_type, l.nweights);
-    trans_i(net.input_gpu, net.input_gpu, l.batch*l.inputs);
+    trans_gpu(l.weights_gpu,l.weights_gpu_type, l.weights, l.nweights, trans_w);
+    trans_gpu(net.input_gpu, net.input_gpu, net.input, l.batch*l.inputs, trans_i);
     l.last_weights_gpu = l.weights_gpu;
     l.weights_gpu = l.weights_gpu_type;
     forward_convolutional_layer_gpu(l, net);
-    trans_o(l.output, l.output, l.batch*l.outputs);
+    trans_gpu(l.output_gpu, l.output, l.batch*l.outputs);
 }
+#endif
 #endif
 void backward_convolutional_layer(convolutional_layer l, network net)
 {
@@ -558,10 +566,12 @@ void update_convolutional_layer_type(convolutional_layer l, int batch, float lea
     l.weights = l.last_weights;
     update_convolutional_layer(l, batch, learning_rate, momentum, decay);
 }
+#ifdef GPU
 void update_convolutional_layer_gpu_type(convolutional_layer l, int batch, float learning_rate, float momentum, float decay){
     l.weights_gpu = l.last_weights_gpu;
     update_convolutional_layer_gpu(l, batch, learning_rate, momentum, decay);
 }
+#endif
 #endif
 
 image get_convolutional_weight(convolutional_layer l, int i)

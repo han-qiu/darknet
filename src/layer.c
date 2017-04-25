@@ -32,15 +32,17 @@ void free_layer(layer l)
     if(l.scale_updates)      free(l.scale_updates);
     #ifdef DATA_TYPE
     if(l.last_weights==l.weights) l.last_weights = NULL;
-    if(l.last_weights_gpu == l.weights_gpu) l.last_weights = NULL;
     if(l.weights_type == l.weights){
         l.weights = l.last_weights;
         l.last_weights = NULL;
     }
+    #ifdef GPU
+    if(l.last_weights_gpu == l.weights_gpu) l.last_weights = NULL;
     if(l.weights_gpu_type == l.weights_gpu){
         l.weights_gpu = l.last_weights_gpu;
         l.last_weights_gpu = NULL;
     }
+    #endif
     #endif
     if(l.weights)            free(l.weights);
     if(l.weight_updates)     free(l.weight_updates);

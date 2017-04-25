@@ -1185,11 +1185,7 @@ float bilinear_interpolate(image im, float x, float y, int c)
     return val;
 }
 void trans_image(image im){
-    int i, j, k;
-    for(i=0;i<im.w;++i)
-        for(j=0;j<im.h;++j)
-            for(k=0;k<im.c;++k)
-                set_pixel(im,i,j,k,trans_(get_pixel(im, i,j,k)));
+    trans_i(im.data, im.data, im.w*im.h*im.c);
 }
 
 image resize_image(image im, int w, int h)

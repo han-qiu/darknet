@@ -1,4 +1,9 @@
 #include "data_type.h"
+#include "ap_fixed.h"
+#include "hls_half.h"
+typedef ap_fixed<16, 2, AP_RND_CONV, AP_SAT> data_tw;
+typedef ap_fixed<16, 6, AP_RND_CONV, AP_SAT> data_ti;
+typedef ap_fixed<16, 7, AP_RND_CONV, AP_SAT> data_to;
 typedef unsigned int uint;
 #define FRAC(x) (x&0x007fffff)
 #define EXP(x) ((x&0x7f800000) >> 23)
