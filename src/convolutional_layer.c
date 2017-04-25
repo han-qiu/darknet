@@ -306,12 +306,12 @@ convolutional_layer make_convolutional_layer(int batch, int h, int w, int c, int
 #endif
 #ifdef DATA_TYPE
     l.forward = forward_convolutional_layer_type;
-    l.backward = backward_convolutional_layer_type;
+    // l.backward = backward_convolutional_layer_type;
     l.update = update_convolutional_layer_type;
     l.weights_type  = calloc(c*n*size*size, sizeof(float));
 #ifdef GPU
     l.forward = forward_convolutional_layer_gpu_type;
-    l.backward = backward_convolutional_layer_gpu_type;
+    // l.backward = backward_convolutional_layer_gpu_type;
     l.update = update_convolutional_layer_gpu_type;
     l.weights_gpu_type = cuda_make_array(l.weights_type, c*n*size*size);
 #endif
@@ -482,12 +482,20 @@ void forward_convolutional_layer(convolutional_layer l, network net)
 }
 #ifdef DATA_TYPE
 void forward_convolutional_layer_type(convolutional_layer l, network net){
-    trans(l.weights, l.weights_type, l.nweights);
-    trans(net.input, net.input, l.batch*l.inputs);
+    trans_w(l.weights, l.weights_type, l.nweights);
+    trans_i(net.input, net.input, l.batch*l.inputs);
     l.last_weights = l.weights;
     l.weights = l.weights_type;
     forward_convolutional_layer(l, net);
-    trans(l.output, l.output, l.batch*l.outputs);
+    trans_o(l.output, l.output, l.batch*l.outputs);
+}
+void forward_convolutional_layer_gpu_type(convolutional_layer l, network net){
+    trans_w(l.weights_gpu, l.weights_gpu_type, l.nweights);
+    trans_i(net.input_gpu, net.input_gpu, l.batch*l.inputs);
+    l.last_weights_gpu = l.weights_gpu;
+    l.weights_gpu = l.weights_gpu_type;
+    forward_convolutional_layer_gpu(l, net);
+    trans_o(l.output, l.output, l.batch*l.outputs);
 }
 #endif
 void backward_convolutional_layer(convolutional_layer l, network net)
@@ -527,11 +535,7 @@ void backward_convolutional_layer(convolutional_layer l, network net)
         }
     }
 }
-#ifdef DATA_TYPE
-void backward_convolutional_layer_type(convolutional_layer l, network net){
-    backward_convolutional_layer(l, net);
-}
-#endif
+
 
 void update_convolutional_layer(convolutional_layer l, int batch, float learning_rate, float momentum, float decay)
 {
@@ -553,6 +557,10 @@ void update_convolutional_layer(convolutional_layer l, int batch, float learning
 void update_convolutional_layer_type(convolutional_layer l, int batch, float learning_rate, float momentum, float decay){
     l.weights = l.last_weights;
     update_convolutional_layer(l, batch, learning_rate, momentum, decay);
+}
+void update_convolutional_layer_gpu_type(convolutional_layer l, int batch, float learning_rate, float momentum, float decay){
+    l.weights_gpu = l.last_weights_gpu;
+    update_convolutional_layer_gpu(l, batch, learning_rate, momentum, decay);
 }
 #endif
 

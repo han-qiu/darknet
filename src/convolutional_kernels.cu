@@ -69,16 +69,16 @@ void binarize_weights_gpu(float *weights, int n, int size, float *binary)
     binarize_weights_kernel<<<cuda_gridsize(n), BLOCK>>>(weights, n, size, binary);
     check_error(cudaPeekAtLastError());
 }
-#ifdef DATA_TYPE
-void forward_convolutional_layer_gpu_type(convolutional_layer l, network net){
-    trans(l.weights_gpu, l.weights_gpu_type, l.nweights);
-    trans(net.input_gpu, net.input_gpu, l.batch*l.inputs);
-    l.last_weights_gpu = l.weights;
-    l.weights_gpu = l.weights_gpu_type;
-    forward_convolutional_layer_gpu(l, net);
-    trans_gpu(l.output_gpu, l.output, l.batch*l.outputs);
-}
-#endif
+// #ifdef DATA_TYPE
+// void forward_convolutional_layer_gpu_type(convolutional_layer l, network net){
+//     trans(l.weights_gpu, l.weights_gpu_type, l.nweights);
+//     trans(net.input_gpu, net.input_gpu, l.batch*l.inputs);
+//     l.last_weights_gpu = l.weights;
+//     l.weights_gpu = l.weights_gpu_type;
+//     forward_convolutional_layer_gpu(l, net);
+//     trans_gpu(l.output_gpu, l.output, l.batch*l.outputs);
+// }
+// #endif
 void forward_convolutional_layer_gpu(convolutional_layer l, network net)
 {
     fill_ongpu(l.outputs*l.batch, 0, l.output_gpu, 1);
@@ -176,16 +176,16 @@ extern "C" void smooth_layer(layer l, int size, float rate)
     smooth_kernel<<<cuda_gridsize(n), BLOCK>>>(l.output_gpu, n, l.w, l.h, l.c, size, rate, l.delta_gpu);
     check_error(cudaPeekAtLastError());
 }
-#ifdef DATA_TYPE
-void backward_convolutional_layer_gpu_type(convolutional_layer l, network net){
-    trans_gpu(l.weights_gpu, l.weights_gpu_type, l.nweights);
-    trans_gpu(net.input_gpu, net.input_gpu, l.batch*l.inputs);
-    l.last_weights_gpu = l.weights_gpu;
-    l.weights_gpu = l.weights_gpu_type;
-    forward_convolutional_layer_gpu(l, net);
-    trans_gpu(l.output_gpu, l.output_gpu, l.batch*l.outputs);
-}
-#endif
+// #ifdef DATA_TYPE
+// void backward_convolutional_layer_gpu_type(convolutional_layer l, network net){
+//     trans_gpu(l.weights_gpu, l.weights_gpu_type, l.nweights);
+//     trans_gpu(net.input_gpu, net.input_gpu, l.batch*l.inputs);
+//     l.last_weights_gpu = l.weights_gpu;
+//     l.weights_gpu = l.weights_gpu_type;
+//     forward_convolutional_layer_gpu(l, net);
+//     trans_gpu(l.output_gpu, l.output_gpu, l.batch*l.outputs);
+// }
+// #endif
 
 void backward_convolutional_layer_gpu(convolutional_layer l, network net)
 {

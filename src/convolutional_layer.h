@@ -55,11 +55,11 @@ void rgbgr_weights(convolutional_layer l);
 
 #ifdef DATA_TYPE
 void forward_convolutional_layer_type(convolutional_layer layer, network net);
-void backward_convolutional_layer_type(convolutional_layer layer, network net);
+// void backward_convolutional_layer_type(convolutional_layer layer, network net);
 void update_convolutional_layer_type(convolutional_layer layer, int batch, float learning_rate, float momentum, float decay);
 #ifdef GPU
 void forward_convolutional_layer_gpu_type(convolutional_layer layer, network net);
-void backward_convolutional_layer_gpu_type(convolutional_layer layer, network net);
+// void backward_convolutional_layer_gpu_type(convolutional_layer layer, network net);
 void update_convolutional_layer_gpu_type(convolutional_layer layer, int batch, float learning_rate, float momentum, float decay);
 #endif
 #endif
