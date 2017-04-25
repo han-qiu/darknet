@@ -89,17 +89,17 @@ void forward_convolutional_layer_gpu(convolutional_layer l, network net)
     length_ = l.batch*l.inputs;
     min_ = *(thrust::min_element(d_ptr, d_ptr + length_));
     in.min_ = in.min_<min_?in.min_:min_;
-    max_ = *(thrust::min_element(d_ptr, d_ptr+length_));
+    max_ = *(thrust::max_element(d_ptr, d_ptr+length_));
     in.max_ = in.max_>max_?in.max_:max_;
-    printf("in-- min:%f,max:%f\n", in.min_, in.max_);
+    printf("in-- min:%f,max:%f, min:%f, max%f\n", in.min_, in.max_,min_,max_);
 
     d_ptr = thrust::device_pointer_cast(l.weights_gpu);
     length_ = l.nweights;
     min_ = *(thrust::min_element(d_ptr, d_ptr + length_));
     w.min_ = w.min_<min_?w.min_:min_;
-    max_ = *(thrust::min_element(d_ptr, d_ptr+length_));
+    max_ = *(thrust::max_element(d_ptr, d_ptr+length_));
     w.max_ = w.max_>max_?w.max_:max_;
-    printf("weights-- min:%f,max:%f\n", w.min_, w.max_);
+    printf("weights-- min:%f,max:%f, min:%f, max%f\n", w.min_, w.max_,min_,max_);
 //#endif
 
     fill_ongpu(l.outputs*l.batch, 0, l.output_gpu, 1);
@@ -148,9 +148,9 @@ void forward_convolutional_layer_gpu(convolutional_layer l, network net)
     length_ = l.batch*l.outputs;
     min_ = *(thrust::min_element(d_ptr, d_ptr + length_));
     out.min_ = out.min_<min_?out.min_:min_;
-    max_ = *(thrust::min_element(d_ptr, d_ptr+length_));
+    max_ = *(thrust::max_element(d_ptr, d_ptr+length_));
     out.max_ = out.max_>max_?out.max_:max_;
-    printf("out-- min:%f,max:%f\n", out.min_, out.max_);
+    printf("out-- min:%f,max:%f, min:%f, max%f\n", out.min_, out.max_,min_,max_);
 //#endif
 
     if (l.batch_normalize) {
