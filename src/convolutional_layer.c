@@ -310,9 +310,9 @@ convolutional_layer make_convolutional_layer(int batch, int h, int w, int c, int
     l.update = update_convolutional_layer_type;
     l.weights_type  = calloc(c*n*size*size, sizeof(float));
 #ifdef GPU
-    l.forward = forward_convolutional_layer_gpu_type;
+    l.forward_gpu = forward_convolutional_layer_gpu_type;
     // l.backward = backward_convolutional_layer_gpu_type;
-    l.update = update_convolutional_layer_gpu_type;
+    l.update_gpu = update_convolutional_layer_gpu_type;
     l.weights_gpu_type = cuda_make_array(l.weights_type, c*n*size*size);
 #endif
 #endif
