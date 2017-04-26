@@ -318,12 +318,12 @@ void adam_update_gpu(float *w, float *d, float *m, float *v, float B1, float B2,
     adam_gpu(n, w, m, v, B1, B2, rate/batch, eps, t);
     fill_ongpu(n, 0, d, 1);
 }
-#ifdef DATA_TYPE
-void update_convolutional_layer_gpu_type(layer l, int batch, float learning_rate, float momentum, float decay){
-    l.weights_gpu = l.last_weights_gpu;
-    update_convolutional_layer_gpu(l, batch, learning_rate, momentum, decay);
-}
-#endif
+// #ifdef DATA_TYPE
+// void update_convolutional_layer_gpu_type(layer l, int batch, float learning_rate, float momentum, float decay){
+//     l.weights_gpu = l.last_weights_gpu;
+//     update_convolutional_layer_gpu(l, batch, learning_rate, momentum, decay);
+// }
+// #endif
 
 void update_convolutional_layer_gpu(layer l, int batch, float learning_rate, float momentum, float decay)
 {
