@@ -1,5 +1,5 @@
-GPU=1
-CUDNN=1
+GPU=0
+CUDNN=0
 OPENCV=1
 DEBUG=0
 DATA_TYPE=0
@@ -73,7 +73,7 @@ DEPS = $(wildcard src/*.h) Makefile
 all: obj backup results $(EXEC)
 
 $(EXEC): $(OBJS) $(OBJDIR)data_type.o
-	g++ $(COMMON) $(CFLAGS) $^ -o $@ $(LDFLAGS)
+	gcc $(COMMON) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 $(OBJDIR)%.o: %.c $(DEPS)
 	$(CC) $(COMMON) $(CFLAGS) -c $< -o $@
