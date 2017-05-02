@@ -492,9 +492,9 @@ void forward_convolutional_layer_type(convolutional_layer l, network net){
 
 #ifdef GPU
 void trans_gpu(float *in_gpu, float *out_gpu, float *x, int n,  void (*trans)( float *in, float *out, int n)){
-    cuda_push_array(in_gpu, x, n);
+    cuda_pull_array(in_gpu, x, n);
     trans(x,x,n);
-    cuda_pull_array(out_gpu, x, n);
+    cuda_push_array(out_gpu, x, n);
 }
 void forward_convolutional_layer_gpu_type(convolutional_layer l, network net){
     trans_gpu(l.weights_gpu,l.weights_gpu_type, l.weights, l.nweights, trans_w);
