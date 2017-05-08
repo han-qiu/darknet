@@ -30,17 +30,7 @@ endif
 
 CFLAGS+=$(OPTS)
 
-ifeq ($(DATA_TYPE),0)
-COMMON+= -DDATA_TYPE=0
-endif
-
-ifeq ($(DATA_TYPE),1)
-COMMON+= -DDATA_TYPE=1
-endif
-
-ifeq ($(DATA_TYPE),2)
-COMMON+= -DDATA_TYPE=2
-endif
+COMMON+= -DDATA_TYPE=$(DATA_TYPE)
 
 ifeq ($(OPENCV), 1) 
 COMMON+= -DOPENCV
